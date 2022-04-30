@@ -35,7 +35,7 @@ class snakeGameAI:
         self.width = w
         self.height = h
         self.display = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption('Asterisk->SnakeGame')
+        pygame.display.set_caption('Asterisk->SnakeGameAI')
         self.clock = pygame.time.Clock()
 
         self.dir = Dir.RIGHT
@@ -89,7 +89,7 @@ class snakeGameAI:
         else:
             return False
 
-    def _ui(self):
+    def _ui(self, gen):
         self.display.fill(BLACK)
 
         for cord in self.snake:
@@ -97,13 +97,18 @@ class snakeGameAI:
             pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
 
-        text0 = font.render("Score: " + str(self.tail), True, WHITE)
+        text0 = font.render("Score: " + str(self.tail) + "/ Generation: " + str(gen), True, WHITE)
         self.display.blit(text0, [0, 0])
         pygame.display.flip()
 
-    def play(self, execute):
+    def play(self, dir, gen):
         # Set Input
-
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            else:
+                self.dir = dir
 
         # Move the snake by head
         self._move(self.dir)
@@ -123,7 +128,7 @@ class snakeGameAI:
             self.snake.pop()
 
         # update UI
-        self._ui()
+        self._ui(gen)
         self.clock.tick(headSpeed)
 
         return game_over, self.tail

@@ -28,7 +28,7 @@ RED = (255, 0, 0)
 
 # Constants
 oneBlockSize = 20
-headSpeed = 20
+headSpeed = 1
 
 class snakeGame:
     def __init__(self, w=720, h=720):
