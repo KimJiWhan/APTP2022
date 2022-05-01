@@ -2,6 +2,7 @@ import pygame
 import random
 from enum import Enum
 from collections import namedtuple
+import numpy as np
 
 pygame.init()
 
@@ -27,7 +28,7 @@ RED = (255, 0, 0)
 
 # Constants
 oneBlockSize = 20
-headSpeed = 20
+headSpeed = 1000
 
 class snakeGameAI:
     def __init__(self, w = 720, h = 720):
@@ -63,18 +64,31 @@ class snakeGameAI:
         if self.item in self.snake:
             self._locateItem()
 
-    def _move(self, direction):
+    def _move(self, move):
         # Gets current coordinate and direction
         # Gives head a new Coordination
+        clock_wise = [Dir.UP, Dir.RIGHT, Dir.DOWN, Dir.LEFT]
+        idx = clock_wise.index(self.dir)
+
+        if np.array_equal(move, [1, 0, 0]):
+            new_dir = clock_wise[idx]  # no change
+        elif np.array_equal(move, [0, 1, 0]):
+            next_idx = (idx + 1) % 4
+            new_dir = clock_wise[next_idx]  # right turn r -> d -> l -> u
+        else:  # [0, 0, 1]
+            next_idx = (idx - 1) % 4
+            new_dir = clock_wise[next_idx]  # left turn r -> u -> l -> d
+        self.dir = new_dir
+
         x = self.head.x
         y = self.head.y
-        if direction == Dir.UP:
+        if self.dir == Dir.UP:
             y -= oneBlockSize
-        elif direction == Dir.RIGHT:
+        elif self.dir == Dir.RIGHT:
             x += oneBlockSize
-        elif direction == Dir.DOWN:
+        elif self.dir == Dir.DOWN:
             y += oneBlockSize
-        elif direction == Dir.LEFT:
+        elif self.dir == Dir.LEFT:
             x -= oneBlockSize
         self.head = Cord(x, y)
 
@@ -82,6 +96,17 @@ class snakeGameAI:
         # Checks if the head collides with snake itself or the wall
         x = self.head.x
         y = self.head.y
+        if x >= self.width or x < 0 or y >= self.height or y < 0:
+            return True
+        elif self.head in self.snake[1:]:
+            return True
+        else:
+            return False
+
+    def collideCheck(self, cord):
+        x = cord.x
+        y = cord.y
+
         if x >= self.width or x < 0 or y >= self.height or y < 0:
             return True
         elif self.head in self.snake[1:]:
@@ -101,28 +126,29 @@ class snakeGameAI:
         self.display.blit(text0, [0, 0])
         pygame.display.flip()
 
-    def play(self, dir, gen):
+    def play(self, move, gen):
         # Set Input
+        reward = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            else:
-                self.dir = dir
 
         # Move the snake by head
-        self._move(self.dir)
+        self._move(move)
         self.snake.insert(0, self.head)
 
         # Check if the game ends
         game_over = False
         if self._collision():
+            reward = -10
             game_over = True
-            return game_over, self.tail
+            return reward, game_over, self.tail
 
         # Place new food if the head encounters the item
         if self.head == self.item:
             self.tail += 1
+            reward = 10
             self._locateItem()
         else:
             self.snake.pop()
@@ -131,4 +157,4 @@ class snakeGameAI:
         self._ui(gen)
         self.clock.tick(headSpeed)
 
-        return game_over, self.tail
+        return reward, game_over, self.tail
