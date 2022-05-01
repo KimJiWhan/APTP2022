@@ -46,6 +46,7 @@ class snakeGameAI:
         self.item = Cord(random.randint(0, (self.width - oneBlockSize) // oneBlockSize) * oneBlockSize,
                          random.randint(0, (self.height - oneBlockSize) // oneBlockSize) * oneBlockSize)
         self.tail = 0
+        self.iteration = 0
 
     def reset(self):
         self.dir = Dir.RIGHT
@@ -55,6 +56,7 @@ class snakeGameAI:
         self.item = Cord(random.randint(0, (self.width - oneBlockSize) // oneBlockSize) * oneBlockSize,
                          random.randint(0, (self.height - oneBlockSize) // oneBlockSize) * oneBlockSize)
         self.tail = 0
+        self.iteration = 0
 
     def _locateItem(self):
         x = random.randint(0, (self.width - oneBlockSize) // oneBlockSize) * oneBlockSize
@@ -113,6 +115,89 @@ class snakeGameAI:
             return True
         else:
             return False
+    def collideCheck2(self, cord):
+        x = cord.x
+        y = cord.y
+
+        check = [False, False, False]
+        if dir == Dir.UP:
+            tmp0 = y
+            while tmp0 >= 0:
+                if cord(x, tmp0) in self.snake:
+                    check[0] = True
+                    break
+                tmp0 -= oneBlockSize
+            tmp1 = x
+            while tmp1 < self.width:
+                if cord(tmp1, y) in self.snake:
+                    check[1] = True
+                    break
+                tmp1 += oneBlockSize
+            tmp2 = x
+            while tmp2 >= 0:
+                if cord(tmp2, y) in self.snake:
+                    check[2] = True
+                    break
+                tmp2 -= oneBlockSize
+        elif dir == Dir.RIGHT:
+            tmp0 = x
+            while tmp0 < self.width:
+                if cord(tmp0, y) in self.snake:
+                    check[0] = True
+                    break
+                tmp0 += oneBlockSize
+            tmp1 = y
+            while tmp1 < self.height:
+                if cord(x, tmp1) in self.snake:
+                    check[1] = True
+                    break
+                tmp1 += oneBlockSize
+            tmp2 = y
+            while tmp2 >= 0:
+                if cord(x, tmp2) in self.snake:
+                    check[2] = True
+                    break
+                tmp2 -= oneBlockSize
+
+        elif dir == Dir.DOWN:
+            tmp0 = y
+            while tmp0 < self.height:
+                if cord(x, tmp0) in self.snake:
+                    check[0] = True
+                    break
+                tmp0 -= oneBlockSize
+            tmp1 = x
+            while tmp1 < self.width:
+                if cord(tmp1, y) in self.snake:
+                    check[2] = True
+                    break
+                tmp1 += oneBlockSize
+            tmp2 = x
+            while tmp2 >= 0:
+                if cord(tmp2, y) in self.snake:
+                    check[0] = True
+                    break
+                tmp2 -= oneBlockSize
+        elif dir == Dir.LEFT:
+            tmp0 = x
+            while tmp0 >= 0:
+                if cord(tmp0, y) in self.snake:
+                    check[0] = True
+                    break
+                tmp0 += oneBlockSize
+            tmp1 = y
+            while tmp1 < self.height:
+                if cord(x, tmp1) in self.snake:
+                    check[2] = True
+                    break
+                tmp1 += oneBlockSize
+            tmp2 = y
+            while tmp2 >= 0:
+                if cord(x, tmp2) in self.snake:
+                    check[1] = True
+                    break
+                tmp2 -= oneBlockSize
+        return check
 
     def _ui(self, gen):
         self.display.fill(BLACK)
@@ -128,6 +213,7 @@ class snakeGameAI:
 
     def play(self, move, gen):
         # Set Input
+        self.iteration += 1
         reward = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -140,15 +226,19 @@ class snakeGameAI:
 
         # Check if the game ends
         game_over = False
-        if self._collision():
+        if self._collision() or self.iteration > 1500:
+            print(self.iteration)
             reward = -10
             game_over = True
+            if self.head in self.snake[1:]:
+                reward = -20
             return reward, game_over, self.tail
 
         # Place new food if the head encounters the item
         if self.head == self.item:
+            self.iteration = 0
             self.tail += 1
-            reward = 10
+            reward = 15
             self._locateItem()
         else:
             self.snake.pop()

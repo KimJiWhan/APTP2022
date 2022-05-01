@@ -15,7 +15,7 @@ class snake_AI:
         self.epsilon = 0 # Control randomness
         self.gamma = 0.9 # Discount rate , < 1
         self.memory = deque(maxlen = MAX_MEMORY)
-        self.model = LinearQNet(11, 256, 3)
+        self.model = LinearQNet(14, 256, 256, 3)
         self.trainer = QTrain(self.model, LR = LR, gamma = self.gamma)
 
     def _setState(self, game):
@@ -31,13 +31,13 @@ class snake_AI:
         dirDown = (game.dir == Dir.DOWN)
         dirLeft = (game.dir == Dir.LEFT)
 
+
         self.state = [
             # Front Check
             (dirUp and game.collideCheck(ptUp)) or
             (dirRight and game.collideCheck(ptRight)) or
             (dirDown and game.collideCheck(ptDown)) or
             (dirLeft and game.collideCheck(ptLeft)),
-
             # Right side Check
             (dirUp and game.collideCheck(ptRight)) or
             (dirRight and game.collideCheck(ptDown)) or
@@ -49,6 +49,23 @@ class snake_AI:
             (dirRight and game.collideCheck(ptUp)) or
             (dirDown and game.collideCheck(ptRight)) or
             (dirLeft and game.collideCheck(ptDown)),
+
+            # Front Check
+            (dirUp and game.collideCheck2(game.head)[0]) or
+            (dirRight and game.collideCheck2(game.head)[0]) or
+            (dirDown and game.collideCheck2(game.head)[0]) or
+            (dirLeft and game.collideCheck2(game.head)[0]),
+            # Right side Check
+            (dirUp and game.collideCheck2(game.head)[1]) or
+            (dirRight and game.collideCheck2(game.head)[1]) or
+            (dirDown and game.collideCheck2(game.head)[1]) or
+            (dirLeft and game.collideCheck2(game.head)[1]),
+            # Bottom side Check is not needed (Always 0)
+            # Left side Check
+            (dirUp and game.collideCheck2(game.head)[2]) or
+            (dirRight and game.collideCheck2(game.head)[2]) or
+            (dirDown and game.collideCheck2(game.head)[2]) or
+            (dirLeft and game.collideCheck2(game.head)[2]),
 
             # Direction of Head
             dirUp, dirRight, dirDown, dirLeft,
@@ -122,6 +139,7 @@ class snake_AI:
 
 def learn():
     scores = []
+    i = 1
     meanScores = []
     totalScore = 0
     best = 0
