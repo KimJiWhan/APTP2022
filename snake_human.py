@@ -3,32 +3,35 @@ import random
 from enum import Enum
 from collections import namedtuple
 
+
+pygame.init()
+
+# Fonts
+font = pygame.font.Font('arial.ttf', 20)
+
 # Moving Direction
 class Dir(Enum):
     UP = 0
+    RIGHT = 1
     DOWN = 2
     LEFT = 3
-    RIGHT = 1
+
 
 # Coordination of point
 Cord = namedtuple('Cord', ['x', 'y'])
-pygame.init()
-# Fonts
-font = pygame.font.Font('arial.ttf', 20)
+
 # RGBs
 WHITE = (255, 255, 255)
 GREY = (192, 192, 192)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (92, 92, 255)
 
 # Constants
 oneBlockSize = 20
-headSpeed = 20
+headSpeed = 1
 
 class snakeGame:
-    def __init__(self, w=960, h=960):
+    def __init__(self, w=720, h=720):
         self.width = w
         self.height = h
         self.display = pygame.display.set_mode((self.width, self.height))
@@ -39,7 +42,7 @@ class snakeGame:
 
         self.head = Cord((self.width)/2, (self.height)/2)
         self.snake = [self.head, Cord(self.head.x - oneBlockSize, self.head.y), Cord(self.head.x - (2 * oneBlockSize), self.head.y)]
-        self.item = Cord(0, 0)
+        self.item = Cord(random.randint(0, (self.width - oneBlockSize) // oneBlockSize) * oneBlockSize, random.randint(0, (self.height - oneBlockSize) // oneBlockSize) * oneBlockSize)
         self.tail = 0
 
     def _locateItem(self):
@@ -62,7 +65,7 @@ class snakeGame:
         elif direction == Dir.DOWN:
             y += oneBlockSize
         elif direction == Dir.LEFT:
-            y -= oneBlockSize
+            x -= oneBlockSize
         self.head = Cord(x, y)
 
     def _collision(self):
@@ -80,8 +83,8 @@ class snakeGame:
         self.display.fill(BLACK)
 
         for cord in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
+            pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
+            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
 
         text = font.render("Score: " + str(self.tail), True, WHITE)
@@ -129,7 +132,6 @@ class snakeGame:
 
 if __name__ == "__main__":
     game = snakeGame()
-
     while True:
         game_over, score = game.play()
         if game_over == True:
