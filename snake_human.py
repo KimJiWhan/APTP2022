@@ -28,7 +28,7 @@ RED = (255, 0, 0)
 
 # Constants
 oneBlockSize = 20
-headSpeed = 1
+headSpeed = 20
 
 class snakeGame:
     def __init__(self, w=720, h=720):
@@ -83,13 +83,17 @@ class snakeGame:
         self.display.fill(BLACK)
 
         for cord in self.snake:
-            pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
-            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
+            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
+            pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
 
         text = font.render("Score: " + str(self.tail), True, WHITE)
         self.display.blit(text, [0, 0])
         pygame.display.flip()
+    def draw(self, dir):
+        # dir = [top, right, bottom, left]
+        for cord in self.snake[1:]:
+            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
 
     def play(self):
         # Get Input
