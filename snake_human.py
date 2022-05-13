@@ -92,23 +92,23 @@ class snakeGame:
             pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
             pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x + 4, cord.y + 4, 12, 12))
             if aX>0 :
-                if self.snake[idx]==self.snake[-1]:
-                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 16, 12))
-                else:
-                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 20, 12))
-            elif aX<0 :
-                if self.snake[idx].x==self.snake[-1].x:
+                if self.snake[idx+1]==self.snake[-1]:
                     pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y + 4, 16, 12))
                 else:
                     pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 20, 12))
+            elif aX<0 :
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 16, 12))
+                else:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 20, 12))
             if aY>0 :
-                if self.snake[idx]==self.snake[-1]:
-                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 16))
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y + 4, 12, 16))
                 else:
                     pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 20))
             elif aY<0 :
-                if self.snake[idx].y==self.snake[-1].y:
-                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y+4 , 12, 16))
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 16))
                 else:
                     pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 20))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
