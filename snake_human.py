@@ -25,10 +25,11 @@ WHITE = (255, 255, 255)
 GREY = (192, 192, 192)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+GREEN=(0,255,0)
 
 # Constants
 oneBlockSize = 20
-headSpeed = 1
+headSpeed = 5
 
 class snakeGame:
     def __init__(self, w=720, h=720):
@@ -82,9 +83,34 @@ class snakeGame:
     def _ui(self):
         self.display.fill(BLACK)
 
-        for cord in self.snake:
-            pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
-            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x+4, cord.y+4, 12, 12))
+        pygame.draw.rect(self.display, GREEN, pygame.Rect(self.snake[0].x, self.snake[0].y, oneBlockSize, oneBlockSize))
+        for idx,cord in enumerate(self.snake[1:]):
+            aX=(self.snake[idx].x)-(self.snake[idx+1].x)
+            aY=(self.snake[idx].y)-(self.snake[idx+1].y)
+            bX = (self.snake[idx-1].x) - (self.snake[idx].x)
+            bY = (self.snake[idx-1].y) - (self.snake[idx].y)
+            pygame.draw.rect(self.display, GREY, pygame.Rect(cord.x, cord.y, oneBlockSize, oneBlockSize))
+            pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x + 4, cord.y + 4, 12, 12))
+            if aX>0 :
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y + 4, 16, 12))
+                else:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 20, 12))
+            elif aX<0 :
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 16, 12))
+                else:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x, cord.y + 4, 20, 12))
+            if aY>0 :
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y + 4, 12, 16))
+                else:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 20))
+            elif aY<0 :
+                if self.snake[idx+1]==self.snake[-1]:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 16))
+                else:
+                    pygame.draw.rect(self.display, WHITE, pygame.Rect(cord.x+4, cord.y , 12, 20))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
 
         text = font.render("Score: " + str(self.tail), True, WHITE)
