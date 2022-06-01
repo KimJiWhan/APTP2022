@@ -28,9 +28,9 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 # Constants
 oneBlockSize = 20
-headSpeed = 1000
+headSpeed = 10
 
-class snakeGameAI:
+class snakeGameHA:
     def __init__(self, w = 720, h = 720):
         # CONSTANTS (will not be reset)
         self.width = w
@@ -50,6 +50,7 @@ class snakeGameAI:
         self.rec = 0
         self.tail = 0
         self.loop = False
+        self.mode = 0 # 0 for human, 1 for AI
 
     def reset(self):
         self.dir = Dir.RIGHT
@@ -70,7 +71,22 @@ class snakeGameAI:
         if self.item in self.snake:
             self._locateItem()
 
-    def _move(self, move):
+    def _moveHu(self, direction):
+        # Gets current coordinate and direction
+        # Gives head a new Coordination
+        x = self.head.x
+        y = self.head.y
+        if direction == Dir.UP:
+            y -= oneBlockSize
+        elif direction == Dir.RIGHT:
+            x += oneBlockSize
+        elif direction == Dir.DOWN:
+            y += oneBlockSize
+        elif direction == Dir.LEFT:
+            x -= oneBlockSize
+        self.head = Cord(x, y)
+
+    def _moveAI(self, move):
         # Gets current coordinate and direction
         # Gives head a new Coordination
         clock_wise = [Dir.UP, Dir.RIGHT, Dir.DOWN, Dir.LEFT]
@@ -152,9 +168,10 @@ class snakeGameAI:
                                      12 + abs(y) / 5))
         pygame.draw.rect(self.display, RED, pygame.Rect(self.item.x, self.item.y, oneBlockSize, oneBlockSize))
 
-        text = font.render("Score: " + str(self.tail), True, WHITE)
-        self.display.blit(text, [0, 0])
+        text0 = font.render("Score: " + str(self.tail) + "/ Mode: " + str(self.mode), True, WHITE)
+        self.display.blit(text0, [0, 0])
         pygame.display.flip()
+
     def _draw(self, cord, x, y):
         px = cord.x + 4
         py = cord.y + 4
@@ -168,18 +185,73 @@ class snakeGameAI:
             py -= 4
         pygame.draw.rect(self.display, WHITE, pygame.Rect(px, py, length[0], length[1]))
 
-    def play(self, move, gen):
+    def playHtoA(self, move, gen):
+        if self.mode == 0:
+            return self.playHu()
+        else:
+            return self.playAI(move, gen)
+    def playHu(self):
+        # Get Input
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.dir = Dir.UP
+                elif event.key == pygame.K_DOWN:
+                    self.dir = Dir.DOWN
+                elif event.key == pygame.K_LEFT:
+                    self.dir = Dir.LEFT
+                elif event.key == pygame.K_RIGHT:
+                    self.dir = Dir.RIGHT
+                elif event.key == pygame.K_SPACE:
+                    self.mode = 1
+                    self.spd = 1000
+            elif event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        reward = 0
+
+        # Move the snake by head
+        self._moveHu(self.dir)
+        self.snake.insert(0, self.head)
+
+        # Check if the game ends
+        game_over = False
+        if self._collision():
+            reward = -10
+            game_over = True
+            return reward, game_over, self.tail
+
+        # place new food if met
+        if self.head == self.item:
+            self.tail += 1
+            self._locateItem()
+            reward = 10
+        else:
+            self.snake.pop()
+
+        # update ui
+        self._ui()
+        self.clock.tick(headSpeed)
+
+        return reward, game_over, self.tail
+
+    def playAI(self, move, gen):
         # Set Input
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.spd = 10
+                    self.mode = 0
 
         # Move the snake by head
         reward = 0
         self.rec += 1
-        self._move(move)
+        self._moveAI(move)
         self.snake.insert(0, self.head)
 
         # Check if the game ends

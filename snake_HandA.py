@@ -1,14 +1,14 @@
 import random
 import torch
 from collections import deque
-from snake_ForAI import snakeGameAI, Dir, Cord, oneBlockSize
+from snake_forHandA import snakeGameHA, Dir, Cord, oneBlockSize
 from model import LinearQNet, QTrain
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LR = 0.001
 
 SetDir = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-class snake_AI:
+class snake_HA:
     def __init__(self):
         self.gen = 0
         self.epsilon = 0 # Control randomness
@@ -116,15 +116,16 @@ class snake_AI:
 
 
 def learn():
+    human_scores = []
     scores = []
     meanScores = 0
     best = 0
-    game = snakeGameAI()
-    AI = snake_AI()
+    game = snakeGameHA()
+    AI = snake_HA()
     while True:
         stateOld = AI.returnState(game)
         move = AI.setMove(stateOld, game.loop)
-        reward, gameOver, score = game.play(move, AI.gen)
+        reward, gameOver, score = game.playHtoA(move, AI.gen)
         stateNew = AI.returnState(game)
 
         # train short memory for one move
@@ -134,15 +135,22 @@ def learn():
         AI.remember(stateOld, move, reward, stateNew, gameOver)
 
         if gameOver:
-            # train long memory for one game, plot result
-            AI.gen += 1
-            AI.trainLongMemory()
             if best < game.tail:
                 best = game.tail
                 AI.model.save()
-            scores.append(game.tail)
-            meanScores = sum(scores) / len(scores)
-            print("Generation: ", AI.gen, "/ Score: ", game.tail, "/ BestScore: ", best, "/ MeanScore: ", meanScores)
+            if game.mode == 0:
+                AI.trainLongMemory()
+                human_scores.append(game.tail)
+                print("Generation: HumanDoing, / Score: ", game.tail, "/ BestScore: ", best)
+            # train long memory for one game, plot result
+            else:
+                AI.gen += 1
+                AI.trainLongMemory()
+                scores.append(game.tail)
+                meanScores = sum(scores) / len(scores)
+                print("Generation: ", AI.gen, "/ Score: ", game.tail, "/ BestScore: ", best, "/ MeanScore: ",
+                      meanScores)
+
 
             game.reset()
 if __name__ == "__main__":
