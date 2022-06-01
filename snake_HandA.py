@@ -14,7 +14,7 @@ class snake_HA:
         self.epsilon = 0 # Control randomness
         self.gamma = 0.9 # Discount rate , < 1
         self.memory = deque(maxlen = MAX_MEMORY)
-        self.model = LinearQNet(11, 16, 16, 3)
+        self.model = LinearQNet(11, 32, 32, 3)
         self.trainer = QTrain(self.model, LR = LR, gamma = self.gamma)
 
     def _setState(self, game):
